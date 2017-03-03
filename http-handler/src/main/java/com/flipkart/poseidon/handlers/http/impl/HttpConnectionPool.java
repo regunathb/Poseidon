@@ -16,6 +16,7 @@
 
 package com.flipkart.poseidon.handlers.http.impl;
 
+import co.paralleluniverse.fibers.httpclient.FiberHttpClientBuilder;
 import com.flipkart.poseidon.handlers.http.HttpDelete;
 import org.apache.http.*;
 import org.apache.http.client.HttpClient;
@@ -142,13 +143,17 @@ public class HttpConnectionPool {
         HttpConnectionParams.setSoTimeout(httpParams, operationTimeout);
 
         // create client pool
-        this.client = new DefaultHttpClient(cm, httpParams);
+        this.client = FiberHttpClientBuilder
+                .create(5)
+                .setMaxConnPerRoute(maxConnections)
+                .setMaxConnTotal(maxConnections)
+                .build();
 
         // policies (cookie)
-        this.client.getParams().setParameter(ClientPNames.COOKIE_POLICY,CookiePolicy.IGNORE_COOKIES);
+//        this.client.getParams().setParameter(ClientPNames.COOKIE_POLICY,CookiePolicy.IGNORE_COOKIES);
 
         // adding gzip support for http client
-        addGzipHeaderInRequestResponse();
+//        addGzipHeaderInRequestResponse();
 
     }
 
